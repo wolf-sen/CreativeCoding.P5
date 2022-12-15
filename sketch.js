@@ -1,55 +1,110 @@
-//Global Variables
-  let screenMargin = 40;
-  let distanceDrawDot = 100;
-  let rotationStep = 10;
+let canvas;
+let exportScaleSlider;
+let backgroundColorSlider;
+//project settings
+let exportScale = 2;
+let projectVesion = 0.02;
+let showSettingsOverlay = false;
+let showDebugMenu = false;
+//image variables
+let screenMargin = 25;
+let ColorBG = 20;
 
-  //debug
-  let debugCrossSize = 5;
-  
+
 function setup() {
-  createCanvas(575, 800);
+  canvas = createCanvas(windowWidth, windowHeight);
   noStroke();
-  angleMode(DEGREES);
+  initalizeSettings();
 }
 
 function draw() {
-  //Color Variables
-    let colorBG = color(30);
-    let colorA1 = color(35);
+  background(ColorBG);
 
-  //Foundation
-    background(colorBG);
-    fill(colorA1);
-    ellipse(width/2, height/2, width-2*screenMargin, width-2*screenMargin);
+  debugOverlay();
+  settingsOverlay();
+}
 
-  //Vector generation
-    let vectorNull = createVector(0, 0)
-    let vectorCenter = createVector(width/2, height/2)
-    let vectorDrawDot = createVector(0, distanceDrawDot)
 
-    //Darwing vector lines (debbuger test)
-      debugVector(vectorNull, vectorCenter);
-    //Rotates around center with radius distanceDrawDot
-    for(let rotationDot = 0; rotationDot <= 360; rotationDot += rotationStep){
+
+
+
+
+
+//initialisation settings objects
+function initalizeSettings() {
+  exportScaleSlider = createSlider(1, 10, exportScale, 1);
+  exportScaleSlider.position(screenMargin + 15, screenMargin + 15);
+  exportScaleSlider.hide();
+  
+  backgroundColorSlider = createSlider(10, 100, ColorBG, 1);
+  backgroundColorSlider.position(screenMargin + 15, screenMargin + 15 + 60);
+  backgroundColorSlider.hide();
+  }
+// draw SettingsOverlay function
+function settingsOverlay() {
+    if (showSettingsOverlay == true){
       push();
-      vectorDrawDot.add(vectorCenter);
-      vectorDrawDot.rotate(rotationDot);
-      //Not correct
-      //VectorTemp1 = vectorDrawDot + vectorCenter
-      debugVector(vectorCenter, vectorDrawDot);
+      // settings container
+      stroke(90);
+      strokeWeight(2);
+      fill(25);
+      settingsContainer = rect(screenMargin, screenMargin, width - 2*screenMargin, height * 0.2, 5);
+      
+      // settings objects
+      noStroke();
+      fill(180);
+      // draw exportScale Slider
+      exportScaleSlider.show();
+      exportScale = exportScaleSlider.value();
+      text('exportScale: ' + exportScale, screenMargin + 17,70,200,200);
+      // draw backbroundColor Slider
+      backgroundColorSlider.show();
+      ColorBG = backgroundColorSlider.value();
+      text('ColorBG: ' + ColorBG, screenMargin + 17,70+60,200,200);
       pop();
     }
+    if (showSettingsOverlay == false){
+      if (exportScaleSlider.show()){
+        exportScaleSlider.hide();
+      }
+      if (backgroundColorSlider.show()){
+        backgroundColorSlider.hide();
+      }
+    }
+  }
   
-  //Typography
-}
+function debugOverlay() {
+    if (showDebugMenu == true){
+      fill(0, 0, 255);
+      ellipse(screenMargin, screenMargin, 20, 20);
+    }
+  }
 
-function debugVector (vectorPos1, vectorPos2){
-  push();
-  strokeWeight(2);
-  stroke(255);
-  line(vectorPos2.x - debugCrossSize, vectorPos2.y, vectorPos2.x + debugCrossSize, vectorPos2.y);
-  line(vectorPos2.x, vectorPos2.y - debugCrossSize, vectorPos2.x, vectorPos2.y + debugCrossSize);
-  stroke(200, 0, 0);
-  line(vectorPos1.x, vectorPos1.y, vectorPos2.x, vectorPos2.y);
-  pop();
-}
+function keyPressed() {
+      // rezizeCanvas to "posterSize"
+      if (key == '0'){
+        resizeCanvas(750, 1000);
+        }
+      // reziseCanvas to "fullSize"
+      if (key == '9'){
+        resizeCanvas(windowWidth, windowHeight);
+        }
+      // save current state to PNG
+      if (key == 's' || key == 'S'){
+        pixelDensity(exportScale);
+        draw();
+        let fileName = 
+            "P5Project_" + projectVesion + "_" + year() + "_" + month() +
+            "_" + day() + "_" + hour() + "_" + minute() + "_" + second() + ".png";
+        save(fileName);
+        pixelDensity(1);
+      }
+      // toggle settingsOverlay
+      if (key == '1'){
+        showSettingsOverlay = !showSettingsOverlay;
+      }
+      // toggle debugOverlay
+      if (key == '2'){
+        showDebugMenu = !showDebugMenu;
+      }
+  }
