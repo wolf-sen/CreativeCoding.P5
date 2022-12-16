@@ -1,6 +1,3 @@
-let canvas;
-let exportScaleSlider;
-let backgroundColorSlider;
 //project settings
 let exportScale = 2;
 let projectVesion = 0.02;
@@ -12,9 +9,19 @@ let ColorBG = 20;
 
 
 function setup() {
+  console.log('running Setup');
+  initalizeVariables();
   canvas = createCanvas(windowWidth, windowHeight);
   noStroke();
   initalizeSettings();
+
+  // check for existence of method
+  if (navigator.requestMIDIAccess) console.log('This browser supports WebMIDI!');
+  else console.log('WebMIDI is not supported in this browser.');
+  // ask for MIDI access
+  navigator.requestMIDIAccess().then(onMIDISuccess);
+
+  console.log('finished Setup');
 }
 
 function draw() {
@@ -25,20 +32,35 @@ function draw() {
 }
 
 
-
-
-
-
-
-//initialisation settings objects
+// assign midi device
+function onMIDISuccess(midiAccess) {
+  // console.log(midiAccess)
+  const midi = midiAccess
+  const inputs = midi.inputs.values()
+  const input = inputs.next()
+  console.log(input)
+  input.value.onmidimessage = onMIDIMessage
+}
+// initialisation variables
+function initalizeVariables() {
+  let canvas;
+  let exportScaleSlider;
+  let backgroundColorSlider;  
+}
+// initialisation settings objects
 function initalizeSettings() {
+  fill(200, 20, 0);
+  settingsInterface = createDiv();
+
   exportScaleSlider = createSlider(1, 10, exportScale, 1);
   exportScaleSlider.position(screenMargin + 15, screenMargin + 15);
-  exportScaleSlider.hide();
+  exportScaleSlider.parent(settingsInterface);
   
   backgroundColorSlider = createSlider(10, 100, ColorBG, 1);
   backgroundColorSlider.position(screenMargin + 15, screenMargin + 15 + 60);
-  backgroundColorSlider.hide();
+  backgroundColorSlider.parent(settingsInterface);
+
+  settingsInterface.hide();
   }
 // draw SettingsOverlay function
 function settingsOverlay() {
@@ -48,38 +70,32 @@ function settingsOverlay() {
       stroke(90);
       strokeWeight(2);
       fill(25);
-      settingsContainer = rect(screenMargin, screenMargin, width - 2*screenMargin, height * 0.2, 5);
+      rect(screenMargin, screenMargin, width - 2*screenMargin, height * 0.2, 5);
       
       // settings objects
       noStroke();
       fill(180);
       // draw exportScale Slider
-      exportScaleSlider.show();
+      settingsInterface.show();
       exportScale = exportScaleSlider.value();
       text('exportScale: ' + exportScale, screenMargin + 17,70,200,200);
       // draw backbroundColor Slider
-      backgroundColorSlider.show();
       ColorBG = backgroundColorSlider.value();
       text('ColorBG: ' + ColorBG, screenMargin + 17,70+60,200,200);
       pop();
     }
     if (showSettingsOverlay == false){
-      if (exportScaleSlider.show()){
-        exportScaleSlider.hide();
-      }
-      if (backgroundColorSlider.show()){
-        backgroundColorSlider.hide();
-      }
+      settingsInterface.hide();
     }
   }
-  
+// draw debugOverlay function
 function debugOverlay() {
     if (showDebugMenu == true){
       fill(0, 0, 255);
       ellipse(screenMargin, screenMargin, 20, 20);
     }
   }
-
+// shortcut list
 function keyPressed() {
       // rezizeCanvas to "posterSize"
       if (key == '0'){
