@@ -1,6 +1,6 @@
 //project settings
 let exportScale = 2;
-let projectVesion = 0.02;
+let projectVesion = 0.03;
 let showSettingsOverlay = false;
 let showDebugMenu = false;
 //image variables
