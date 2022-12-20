@@ -6,6 +6,7 @@ let showDebugMenu = false;
 //image variables
 let screenMargin = 25;
 let ColorBG = 20;
+let midiStatus = false;
 
 
 function setup() {
@@ -15,13 +16,12 @@ function setup() {
   noStroke();
   initalizeSettings();
 
-  // check for existence of method
-  if (navigator.requestMIDIAccess) console.log('This browser supports WebMIDI!');
-  else console.log('WebMIDI is not supported in this browser.');
-  // ask for MIDI access
-  navigator.requestMIDIAccess().then(onMIDISuccess);
-
-  console.log('finished Setup');
+  // enable webMIDI.js library
+  WebMidi
+  .enable()
+  .then(console.log("WebMidi enabled!"))
+  .then(onEnabled)
+  .catch(err => alert(err));
 }
 
 function draw() {
@@ -32,15 +32,13 @@ function draw() {
 }
 
 
-// assign midi device
-function onMIDISuccess(midiAccess) {
-  // console.log(midiAccess)
-  const midi = midiAccess
-  const inputs = midi.inputs.values()
-  const input = inputs.next()
-  console.log(input)
-  input.value.onmidimessage = onMIDIMessage
+function onEnabled() {
+  WebMidi.inputs.forEach(input => 
+    console.log(input.state, input.name, input.connection));
+  midiStatus = true;
+  
 }
+
 // initialisation variables
 function initalizeVariables() {
   let canvas;
@@ -75,6 +73,23 @@ function settingsOverlay() {
       // settings objects
       noStroke();
       fill(180);
+      //Midi Status
+      if (midiStatus == true){
+        push();
+        textAlign(CENTER, CENTER);
+        text('Midi Status', width -3.5 *screenMargin, height *0.2 );
+        fill(0, 200, 0);
+        ellipse(width -2 *screenMargin, height *0.2 , 10, 10);
+        pop();
+      }
+      else{
+        push();
+        textAlign(CENTER, CENTER);
+        text('Midi Status', width -3.5 *screenMargin, height *0.2 );
+        fill(200, 0, 0);
+        ellipse(width -2 *screenMargin, height *0.2 , 10, 10);
+        pop();
+      }
       // draw exportScale Slider
       settingsInterface.show();
       exportScale = exportScaleSlider.value();
