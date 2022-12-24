@@ -207,9 +207,9 @@ function imageLayout() {
   text("GENERATING THINGS", screenMargin + 20, screenMargin + 10);
   textAlign(RIGHT, TOP);
   textFont('arial');
-  textSize(10);
+  textSize(11);
   text(projectVesion, width - screenMargin - 20, screenMargin + 20);
   textAlign(LEFT, TOP);
-  text("СОЗДАВАЙТЕ ВЕЩИ", screenMargin + 20, screenMargin + 100);
+  text("СОЗДАВАТ ВЕЩИ", screenMargin + 23, screenMargin + 60);
   pop();
 }
