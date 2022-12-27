@@ -1,7 +1,7 @@
 new p5();
 //project settings
 let exportScale = 2;
-let projectVesion = 0.06;
+let projectVesion = '0.07';
 let showSettingsOverlay = false;
 let showDebugMenu = false;
 //image variables
@@ -20,7 +20,7 @@ function preload(){
 }
 function setup() {
   console.log('running Setup');
-  createCanvas(windowWidth, windowHeight);
+  createCanvas(800, 1050);
   noStroke();
   angleMode(DEGREES);
   frameRate(30);
