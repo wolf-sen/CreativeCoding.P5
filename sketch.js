@@ -47,12 +47,13 @@ function drawOverlayL(){
   overlayL.rotate(-90);
   overlayL.textFont(ibmFont);
   overlayL.textSize(13);
-  overlayL.text("mouseX: " + mouseX + "  mouseY: " + mouseY, 0, 0);
+  overlayL.text("mouseX: " + mouseX + "   mouseY: " + mouseY + "   tickRate: " + updateRandom, 0, 0);
   overlayL.pop();
 }
 
 function drawBadge(){
-  if(frameCount%12 == 0){
+  updateRandom = round(random(10, 20));
+  if(frameCount%updateRandom == 0){
   badge.clear();
   badgeMargin = 5;
   badge.pixelDensity(5)
