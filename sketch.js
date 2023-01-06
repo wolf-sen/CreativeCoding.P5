@@ -2,8 +2,8 @@
 //misc.
 var incrementTimeline = 0;
 //General
-var exportScale = 2;
-var projectVesion = '0.5';
+var exportScale = 4;
+var projectVesion = '0.6';
 //midi
 var midiDeviceName = 'Launchkey 61';
 var myInput;
@@ -30,6 +30,7 @@ function setup() {
   frameRate(60);
   loadColors();
 
+  overlayL.angleMode(DEGREES);
   // enable p5.grain.min library
   p5grain.setup();
 
@@ -55,10 +56,16 @@ function draw() {
   pop();
 
   //drawTimeline
-  push();
-  glow(0, 0);
   drawTimeline();
+  push();
+  blendMode(ADD);
+  glow(0, 0);
+  tint(255, 0, 0, 110)
+  image(timeline, width * 0.22 - 1, 0);
+  tint(0, 255, 0, 110)
   image(timeline, width * 0.22, 0);
+  tint(0, 0, 255, 110)
+  image(timeline, width * 0.22 + 1, 0);
   pop();
 
   //drawOverlayLayout
@@ -105,15 +112,18 @@ function drawOverlayL(){
   overlayL.line(overlayLMarginR, height * 0.6, overlayLMarginR + screenMargin, height * 0.6 + screenMargin);
   overlayL.noStroke();
   overlayL.fill(255);
-  overlayL.rect(overlayLMarginL, overlayLMarginT, 10, 10)
+  overlayL.rect(overlayLMarginL, overlayLMarginT, 10, 10);
   overlayL.push();
-  overlayL.translate(overlayLMarginR - 5, overlayLMarginT + 700, 0)
-  overlayL.angleMode(DEGREES);
+  overlayL.translate(overlayLMarginR - 5, overlayLMarginT + 700, 0);
   overlayL.rotate(-90);
-  overlayL.textFont(ibmFont);
-  overlayL.textSize(13);
+  overlayL.textFont(mNineFont);
+  overlayL.textSize(12);
   overlayL.text("mouseX: " + mouseX + "   mouseY: " + mouseY + "   FrameRate: " + currentFPS, 0, 0);
   overlayL.pop();
+  overlayL.textFont(mNineFont);
+  overlayL.textSize(11);
+  overlayL.textAlign(LEFT, BOTTOM);
+  overlayL.text("//P5.JS Project - version " + projectVesion + " - created by SEN. (Max W.)",overlayLMarginL, overlayLMarginB);
 }
 function drawBadge(){
   updateRandom = round(random(10, 20));

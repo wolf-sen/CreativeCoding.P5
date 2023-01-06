@@ -1,6 +1,6 @@
 Sources of Assets:
 
-flower2x.png - Personal
+flower - Personal
 VCR OSD Font - https://www.dafont.com/vcr-osd-mono.font
 Mode Nine Font - https://www.dafont.com/de/modenine.font
 IBM Font - https://www.dafont.com/de/nouveau-ibm.font
