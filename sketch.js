@@ -3,7 +3,7 @@
 var incrementTimeline = 0;
 //General
 var exportScale = 2;
-var projectVesion = '0.07';
+var projectVesion = '0.5';
 //midi
 var midiDeviceName = 'Launchkey 61';
 var myInput;
@@ -15,7 +15,8 @@ var screenMargin = 25;
 var tick = 1;
 
 function preload(){
-  flowerICO = loadImage('assets/flowerWhite.png');
+  textureGrain = loadImage('./assets/grain_overlay_matrix_hard.png');
+  flowerICO = loadImage('assets/flower_white.png');
   osdFont = loadFont('assets/fonts/VCR_OSD.ttf');
   mNineFont = loadFont('assets/fonts/MNINE.ttf');
   ibmFont = loadFont('assets/fonts/IBM.ttf');
@@ -26,11 +27,13 @@ function setup() {
   createGraphicsCustom('badge', 70, 280);
   createGraphicsCustom('timeline', 35, height);
   createGraphicsCustom('overlayL', width, height);
-  createGraphicsCustom('filmGrain', width, height);
-  frameRate(1200);
+  frameRate(60);
   loadColors();
 
-  // enable webMIDI.js library
+  // enable p5.grain.min library
+  p5grain.setup();
+
+  // enable webMIDI.iife library
   WebMidi
   .enable()
   .then(console.log("WebMidi enabled!"))
@@ -40,6 +43,7 @@ function setup() {
 
 //Render functions
 function draw() {
+  currentFPS = round(frameRate());
   background(colorBG);
   
   //drawBadge
@@ -63,7 +67,7 @@ function draw() {
   push();
   glow(colorA2, 30);
   translate(2, 4);
-  tint(0, 0, 255, 90);
+  tint(0, 0, 255, 70);
   image(overlayL, 0, 0);
   pop();
   //main
@@ -77,7 +81,6 @@ function draw() {
   push();
   glow(0, 0);
   drawFilmGrain();
-  image(filmGrain, 0, 0);
   pop();
 }
 function drawTimeline(){
@@ -109,7 +112,7 @@ function drawOverlayL(){
   overlayL.rotate(-90);
   overlayL.textFont(ibmFont);
   overlayL.textSize(13);
-  overlayL.text("mouseX: " + mouseX + "   mouseY: " + mouseY + "   tickRate: " + updateRandom, 0, 0);
+  overlayL.text("mouseX: " + mouseX + "   mouseY: " + mouseY + "   FrameRate: " + currentFPS, 0, 0);
   overlayL.pop();
 }
 function drawBadge(){
@@ -138,24 +141,29 @@ function drawBadge(){
   }
 }
 function drawFilmGrain(){
+  textureOverlay(textureGrain, {
+    width: textureGrain.width/2,
+    height: textureGrain.height/2,
+    animate: true,
+});
 }
 
 //MidiListener
 function onEnabled() {
   WebMidi.inputs.forEach(input => 
-    console.log(input.state, input.name));
+    console.log("webMIDI: ", input.state, input.name));
 
   myInput = WebMidi.getInputByName(midiDeviceName);
-  console.log("selected InputID: ", myInput.id);
+  console.log("webMIDI: selected input id, ", myInput.id);
 
   myInput.channels[1].addListener("noteon", listenCH1 => {
     midiDataCH1 = listenCH1;
-    console.log(midiDataCH1.data);
+    console.log("midiDataCH1: ", midiDataCH1.data);
   });
 
   myInput.channels[1].addListener("noteoff", listenCH1 => {
     midiDataCH1 = listenCH1;
-    console.log(midiDataCH1.data);
+    console.log("midiDataCH1: ",midiDataCH1.data);
   });
 }
 
@@ -203,7 +211,7 @@ function keyPressed() {
     let fileName = 
         "P5Project_" + projectVesion + "_" + year() + "_" + month() +
         "_" + day() + "_" + hour() + "_" + minute() + "_" + second() + ".png";
-    save(fileName);
+    saveCanvas(fileName);
     pixelDensity(1);
   }
   // toggle settingsOverlay
@@ -219,7 +227,7 @@ function keyPressed() {
 }
 //all color variables
 function loadColors() {
-  window.colorBG = color(20);
+  window.colorBG = color(35);
   window.colorA1 = color(255, 59, 107);
   window.colorA2 = color(0, 40, 255);
   window.colorG1 = color(255, 0, 90);
