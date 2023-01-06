@@ -1,7 +1,7 @@
 new p5();
 //project settings
 let exportScale = 2;
-let projectVesion = '0.07';
+let projectVesion = '0.08';
 let showSettingsOverlay = false;
 let showDebugMenu = false;
 //image variables
@@ -160,14 +160,14 @@ function keyPressed() {
   }
 
 function endlessSpiral(){
-  let noteSize = 15;
+  let noteSize = 2;
   let vNull = createVector(0, 0);
   let vCenter = createVector(width/2, height/2);
   let vDotPos = createVector(100, 0);
   vDotPos.rotate(frameCount/4);
   vDotPos.x -= 40;
   if(directionHue == true) dotHue += 0.1;
-  else dotHue -= 0.1;
+  else dotHue -= 0.3;
   if(dotHue < 0) directionHue = true;
   if(dotHue > 100) directionHue = false;
   //dotBrightness -= 0.1;
