@@ -1,22 +1,21 @@
 //new p5();
+//misc.
+var incrementTimeline = 0;
 //General
-let exportScale = 2;
-let projectVesion = '0.07';
-//Image
-let screenMargin = 25;
-let tick = 1;
+var exportScale = 2;
+var projectVesion = '0.07';
 //midi
-let midiDeviceName = 'Launchkey 61';
-let myInput;
-let midiDataCH1 = {
+var midiDeviceName = 'Launchkey 61';
+var myInput;
+var midiDataCH1 = {
   data: [0, 0, 0], 
 }
-//misc.
-let incrementTimeline = 0;
-
+//Image
+var screenMargin = 25;
+var tick = 1;
 
 function preload(){
-  flowerICO = loadImage('assets/flower2x.png');
+  flowerICO = loadImage('assets/flowerWhite.png');
   osdFont = loadFont('assets/fonts/VCR_OSD.ttf');
   mNineFont = loadFont('assets/fonts/MNINE.ttf');
   ibmFont = loadFont('assets/fonts/IBM.ttf');
@@ -27,7 +26,9 @@ function setup() {
   createGraphicsCustom('badge', 70, 280);
   createGraphicsCustom('timeline', 35, height);
   createGraphicsCustom('overlayL', width, height);
+  createGraphicsCustom('filmGrain', width, height);
   frameRate(1200);
+  loadColors();
 
   // enable webMIDI.js library
   WebMidi
@@ -37,6 +38,109 @@ function setup() {
   .catch(err => alert(err));
 }
 
+//Render functions
+function draw() {
+  background(colorBG);
+  
+  //drawBadge
+  push();
+  glow(0, 0);
+  tint(colorA1);
+  drawBadge();
+  image(badge, canvasMarginR - badge.width, canvasMarginB - badge.height);
+  pop();
+
+  //drawTimeline
+  push();
+  glow(0, 0);
+  drawTimeline();
+  image(timeline, width * 0.22, 0);
+  pop();
+
+  //drawOverlayLayout
+  drawOverlayL();
+  //color abebration
+  push();
+  glow(colorA2, 30);
+  translate(2, 4);
+  tint(0, 0, 255, 90);
+  image(overlayL, 0, 0);
+  pop();
+  //main
+  push();
+  glow(colorA1, 10);
+  tint(colorA1);
+  image(overlayL, 0, 0);
+  pop();
+
+  //drawOverlayGrain
+  push();
+  glow(0, 0);
+  drawFilmGrain();
+  image(filmGrain, 0, 0);
+  pop();
+}
+function drawTimeline(){
+  timeline.colorMode(HSB);
+  if(midiDataCH1.data[0] == 144)
+  timeline.fill(map(midiDataCH1.data[1], 36, 51, 0, 360), 100, 100);
+  if(midiDataCH1.data[0] == 128)
+  timeline.fill(0, 0, 0, 0);
+  if(frameCount%tick == 0){
+    incrementTimeline += 2;
+    timeline.rect(0,incrementTimeline,timeline.width, 2);}
+    if(incrementTimeline > timeline.height)incrementTimeline = 0;
+    
+  }
+function drawOverlayL(){
+  overlayL.clear();
+  //overlay.background(0, 0, 255, 100)
+  overlayL.stroke(255);
+  overlayL.strokeWeight(2);
+  overlayL.line(overlayLMarginR, overlayLMarginT, overlayLMarginR, height * 0.6);
+  overlayL.line(overlayLMarginR, overlayLMarginT, overlayLMarginR - screenMargin, 0);
+  overlayL.line(overlayLMarginR, height * 0.6, overlayLMarginR + screenMargin, height * 0.6 + screenMargin);
+  overlayL.noStroke();
+  overlayL.fill(255);
+  overlayL.rect(overlayLMarginL, overlayLMarginT, 10, 10)
+  overlayL.push();
+  overlayL.translate(overlayLMarginR - 5, overlayLMarginT + 700, 0)
+  overlayL.angleMode(DEGREES);
+  overlayL.rotate(-90);
+  overlayL.textFont(ibmFont);
+  overlayL.textSize(13);
+  overlayL.text("mouseX: " + mouseX + "   mouseY: " + mouseY + "   tickRate: " + updateRandom, 0, 0);
+  overlayL.pop();
+}
+function drawBadge(){
+  updateRandom = round(random(10, 20));
+  if(frameCount%updateRandom == 0){
+    badge.clear();
+    badgeMargin = 5;
+    badge.pixelDensity(5)
+    //badge.background(0, 0, 255, 100);
+    glowBadge(colorG1, 20);
+    badge.image(flowerICO, badgeMargin/2, badge.height - 0.95 *badge.width, badge.width - 1* badgeMargin, badge.width - 1* badgeMargin);
+    glowBadge(colorG1, 10);
+    badge.fill(255);
+    badge.rect(0, badge.height * 0.70, 80, 5);
+    //random binary pattern
+    badgeCodeChance = 1;
+    for (let incrementY = 0; incrementY < (badge.height * 0.68); incrementY += 5) {
+      for (let incrementX = 0; incrementX < badge.width; incrementX += 5) {
+        if(random(0, 100) < badgeCodeChance) badgeCodeState = 255;
+        else badgeCodeState = 0;
+        badge.fill(255, badgeCodeState);
+        badge.rect(incrementX, incrementY, 5, 5);
+      }
+      badgeCodeChance += 2.7 ;
+    }
+  }
+}
+function drawFilmGrain(){
+}
+
+//MidiListener
 function onEnabled() {
   WebMidi.inputs.forEach(input => 
     console.log(input.state, input.name));
@@ -53,72 +157,6 @@ function onEnabled() {
     midiDataCH1 = listenCH1;
     console.log(midiDataCH1.data);
   });
-}
-
-function draw() {
-  background(200, 200, 200);
-  drawBadge();
-  image(badge, canvasMarginR - badge.width, canvasMarginB - badge.height);
-  drawTimeline();
-  image(timeline, width * 0.22, 0);
-  drawOverlayL();
-  image(overlayL, 0, 0)
-}
-
-function drawTimeline(){
-  timeline.colorMode(HSB);
-  if(midiDataCH1.data[0] == 144)
-  timeline.fill(map(midiDataCH1.data[1], 36, 51, 0, 360), 100, 100);
-  if(midiDataCH1.data[0] == 128)
-  timeline.fill(0, 0, 0, 0);
-  if(frameCount%tick == 0){
-    incrementTimeline += 2;
-    timeline.rect(0,incrementTimeline,timeline.width, 2);}
-  if(incrementTimeline > timeline.height)incrementTimeline = 0;
-
-}
-function drawOverlayL(){
-  overlayL.clear();
-  //overlay.background(0, 0, 255, 100)
-  overlayL.stroke(0);
-  overlayL.strokeWeight(2);
-  overlayL.line(overlayLMarginR, overlayLMarginT, overlayLMarginR, height * 0.6);
-  overlayL.line(overlayLMarginR, overlayLMarginT, overlayLMarginR - screenMargin, 0);
-  overlayL.line(overlayLMarginR, height * 0.6, overlayLMarginR + screenMargin, height * 0.6 + screenMargin);
-  overlayL.noStroke();
-  overlayL.fill(0);
-  overlayL.rect(overlayLMarginL, overlayLMarginT, 10, 10)
-  overlayL.push();
-  overlayL.translate(overlayLMarginR - 5, overlayLMarginT + 700, 0)
-  overlayL.angleMode(DEGREES);
-  overlayL.rotate(-90);
-  overlayL.textFont(ibmFont);
-  overlayL.textSize(13);
-  overlayL.text("mouseX: " + mouseX + "   mouseY: " + mouseY + "   tickRate: " + updateRandom, 0, 0);
-  overlayL.pop();
-}
-
-function drawBadge(){
-  updateRandom = round(random(10, 20));
-  if(frameCount%updateRandom == 0){
-  badge.clear();
-  badgeMargin = 5;
-  badge.pixelDensity(5)
-  //badge.background(0, 0, 255, 100);
-  badge.image(flowerICO, badgeMargin/2, badge.height - 0.95 *badge.width, badge.width - 1* badgeMargin, badge.width - 1* badgeMargin);
-  badge.fill(0);
-  badge.rect(0, badge.height * 0.70, 80, 5);
-  //random binary pattern
-  badgeCodeChance = 1;
-  for (let incrementY = 0; incrementY < (badge.height * 0.68); incrementY += 5) {
-    for (let incrementX = 0; incrementX < badge.width; incrementX += 5) {
-      if(random(0, 100) < badgeCodeChance) badgeCodeState = 255;
-      else badgeCodeState = 0;
-      badge.fill(0, badgeCodeState);
-      badge.rect(incrementX, incrementY, 5, 5);
-    }
-    badgeCodeChance += 2.7 ;
-  }}
 }
 
 //Utils.
@@ -148,7 +186,7 @@ function createGraphicsCustom(graphicName, resX, resY) {
   eval(graphicName + 'CenterY = resY / 2;');
   eval(graphicName + 'CenterX = resX / 2;');
 }
-
+//hotkey mapping
 function keyPressed() {
   // rezizeCanvas to "posterSize"
   if (key == '0'){
@@ -178,4 +216,24 @@ function keyPressed() {
     background(ColorBG);
     showDebugMenu = !showDebugMenu;
   }
+}
+//all color variables
+function loadColors() {
+  window.colorBG = color(20);
+  window.colorA1 = color(255, 59, 107);
+  window.colorA2 = color(0, 40, 255);
+  window.colorG1 = color(255, 0, 90);
+}
+//Glow/Blur Effect
+function glow(glowColor, blurriness){
+  drawingContext.shadowBlur = blurriness;
+  drawingContext.shadowColor = glowColor;
+}
+function glowBadge(glowColor, blurriness){
+  badge.drawingContext.shadowBlur = blurriness;
+  badge.drawingContext.shadowColor = glowColor;
+}
+function glowTimeline(glowColor, blurriness){
+  timeline.drawingContext.shadowBlur = blurriness;
+  timeline.drawingContext.shadowColor = glowColor;
 }
