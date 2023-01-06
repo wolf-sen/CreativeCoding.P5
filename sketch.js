@@ -1,6 +1,19 @@
 //new p5();
-screenMargin = 25;
-tick = 0;
+//General
+let exportScale = 2;
+let projectVesion = '0.07';
+//Image
+let screenMargin = 25;
+let tick = 1;
+//midi
+let midiDeviceName = 'Launchkey 61';
+let myInput;
+let midiDataCH1 = {
+  data: [0, 0, 0], 
+}
+//misc.
+let incrementTimeline = 0;
+
 
 function preload(){
   flowerICO = loadImage('assets/flower2x.png');
@@ -14,21 +27,55 @@ function setup() {
   createGraphicsCustom('badge', 70, 280);
   createGraphicsCustom('timeline', 35, height);
   createGraphicsCustom('overlayL', width, height);
-  frameRate(60);
+  frameRate(1200);
+
+  // enable webMIDI.js library
+  WebMidi
+  .enable()
+  .then(console.log("WebMidi enabled!"))
+  .then(onEnabled)
+  .catch(err => alert(err));
+}
+
+function onEnabled() {
+  WebMidi.inputs.forEach(input => 
+    console.log(input.state, input.name));
+
+  myInput = WebMidi.getInputByName(midiDeviceName);
+  console.log("selected InputID: ", myInput.id);
+
+  myInput.channels[1].addListener("noteon", listenCH1 => {
+    midiDataCH1 = listenCH1;
+    console.log(midiDataCH1.data);
+  });
+
+  myInput.channels[1].addListener("noteoff", listenCH1 => {
+    midiDataCH1 = listenCH1;
+    console.log(midiDataCH1.data);
+  });
 }
 
 function draw() {
   background(200, 200, 200);
   drawBadge();
   image(badge, canvasMarginR - badge.width, canvasMarginB - badge.height);
-  //drawTimeline();
+  drawTimeline();
   image(timeline, width * 0.22, 0);
   drawOverlayL();
   image(overlayL, 0, 0)
 }
 
 function drawTimeline(){
-  timeline.background(0, 255, 0);
+  timeline.colorMode(HSB);
+  if(midiDataCH1.data[0] == 144)
+  timeline.fill(map(midiDataCH1.data[1], 36, 51, 0, 360), 100, 100);
+  if(midiDataCH1.data[0] == 128)
+  timeline.fill(0, 0, 0, 0);
+  if(frameCount%tick == 0){
+    incrementTimeline += 2;
+    timeline.rect(0,incrementTimeline,timeline.width, 2);}
+  if(incrementTimeline > timeline.height)incrementTimeline = 0;
+
 }
 function drawOverlayL(){
   overlayL.clear();
@@ -100,4 +147,35 @@ function createGraphicsCustom(graphicName, resX, resY) {
   eval(graphicName + 'MarginR = resX - screenMargin;');
   eval(graphicName + 'CenterY = resY / 2;');
   eval(graphicName + 'CenterX = resX / 2;');
+}
+
+function keyPressed() {
+  // rezizeCanvas to "posterSize"
+  if (key == '0'){
+    resizeCanvas(874, 1240);
+    }
+  // reziseCanvas to "fullSize"
+  if (key == '9'){
+    resizeCanvas(windowWidth, windowHeight);
+    }
+  // save current state to PNG
+  if (key == 's' || key == 'S'){
+    pixelDensity(exportScale);
+    draw();
+    let fileName = 
+        "P5Project_" + projectVesion + "_" + year() + "_" + month() +
+        "_" + day() + "_" + hour() + "_" + minute() + "_" + second() + ".png";
+    save(fileName);
+    pixelDensity(1);
+  }
+  // toggle settingsOverlay
+  if (key == '1'){
+    background(ColorBG);
+    showSettingsOverlay = !showSettingsOverlay;
+  }
+  // toggle debugOverlay
+  if (key == '2'){
+    background(ColorBG);
+    showDebugMenu = !showDebugMenu;
+  }
 }
