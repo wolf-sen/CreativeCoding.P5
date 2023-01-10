@@ -27,9 +27,9 @@ function setup() {
   createGraphicsCustom('badge', 70, 280);
   createGraphicsCustom('timeline', 35, height);
   createGraphicsCustom('overlayL', width, height);
+  
   frameRate(60);
   loadColors();
-
   overlayL.angleMode(DEGREES);
   // enable p5.grain.min library
   p5grain.setup();
@@ -60,6 +60,7 @@ function draw() {
   push();
   blendMode(ADD);
   glow(0, 0);
+  //color split for timeline
   tint(255, 0, 0, 110)
   image(timeline, width * 0.22 - 1, 0);
   tint(0, 255, 0, 110)
