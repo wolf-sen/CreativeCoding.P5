@@ -2,10 +2,9 @@
 //misc.
 var incrementTimeline = 0;
 //General
-var exportScale = 4;
 var projectVesion = '0.6';
 //midi
-var midiDeviceName = 'Launchkey 61';
+var midiDeviceName = 'Loop';
 var myInput;
 var midiDataCH1 = {
   data: [0, 0, 0], 
@@ -26,11 +25,15 @@ function setup() {
   createCanvasCustom(874, 1240);
   createGraphicsCustom('badge', 70, 280);
   createGraphicsCustom('timeline', 35, height);
+  createGraphicsCustom('spiral', 700, 700);
   createGraphicsCustom('overlayL', width, height);
+  loadSettings();
+  //loadMidiVar();
+  loadColors();
   
   frameRate(60);
-  loadColors();
   overlayL.angleMode(DEGREES);
+  spiral.angleMode(DEGREES);
   // enable p5.grain.min library
   p5grain.setup();
 
@@ -53,6 +56,12 @@ function draw() {
   tint(colorA1);
   drawBadge();
   image(badge, canvasMarginR - badge.width, canvasMarginB - badge.height);
+  pop();
+
+  //drawSpiral
+  drawSpiral();
+  push();
+  image(spiral, canvasCenterX - spiral.width/2, canvasCenterY - spiral.height/2);
   pop();
 
   //drawTimeline
@@ -88,7 +97,7 @@ function draw() {
   //drawOverlayGrain
   push();
   glow(0, 0);
-  drawFilmGrain();
+  //drawFilmGrain();
   pop();
 }
 function drawTimeline(){
@@ -157,6 +166,24 @@ function drawFilmGrain(){
     height: textureGrain.height/2,
     animate: true,
 });
+}
+function drawSpiral(){
+  //spiral.background(200, 0, 0);
+  spiral.push();
+  spiral.translate(spiral.width/2, spiral.height/2);
+  spiral.rotate(spiralMoveAngle);
+  spiral.fill(255);
+  for(let rotationSpiral = 0; rotationSpiral <= 360; rotationSpiral += rotationIncrement){
+    spiral.push();
+    spiral.rotate(rotationSpiral);
+    spiral.ellipse(spiralVector1.x, spiralVector1.y, 4, 4);
+    spiral.pop();
+  }
+  spiralVector1.x -= 1;
+  //if(spiralVector1.x <= 0) spiralVector1.x = 340;
+  spiralMoveAngle += 1;
+  spiral.pop();
+
 }
 
 //MidiListener
@@ -242,6 +269,12 @@ function loadColors() {
   window.colorA1 = color(255, 59, 107);
   window.colorA2 = color(0, 40, 255);
   window.colorG1 = color(255, 0, 90);
+}
+function loadSettings() {
+  window.spiralVector1 = createVector(340, 0);
+  window.rotationIncrement = 10;
+  window.spiralMoveAngle = 1;
+  window.exportScale = 4;
 }
 //Glow/Blur Effect
 function glow(glowColor, blurriness){
